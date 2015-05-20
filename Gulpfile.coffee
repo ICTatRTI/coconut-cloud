@@ -124,6 +124,6 @@ gulp.task 'default', [
   'app'
 ]
 
-gulp.watch "#{base_dir}/*.html", ['app']
-gulp.watch ["#{base_dir}/app/**/*.coffee","#{base_dir}/app/*.coffee"], ['coffee','app']
+#gulp.watch "#{base_dir}/*.html", ['app']
+#gulp.watch ["#{base_dir}/app/**/*.coffee","#{base_dir}/app/*.coffee"], ['coffee','app']
 

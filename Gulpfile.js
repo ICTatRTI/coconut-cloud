@@ -72,8 +72,4 @@ gulp.task('app', function() {
 
 gulp.task('default', ['coffee', 'libs', 'css', 'app']);
 
-gulp.watch(base_dir + "/*.html", ['app']);
-
-gulp.watch([base_dir + "/app/**/*.coffee", base_dir + "/app/*.coffee"], ['coffee', 'app']);
-
 //# sourceMappingURL=Gulpfile.js.map
