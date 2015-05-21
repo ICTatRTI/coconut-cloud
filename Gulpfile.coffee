@@ -7,13 +7,11 @@ shell = require 'gulp-shell'
 gutil = require 'gulp-util'
 debug = require 'gulp-debug'
 
-base_dir = "/var/www/coconut-core/_attachments"
-
 gulp.task 'coffee', ->
-  gulp.src ["#{base_dir}/app/**/*.coffee","#{base_dir}/app/*.coffee"]
+  gulp.src ["./_attachments/app/**/*.coffee","./_attachments/app/*.coffee"]
   .pipe coffee
     bare: true
-  .pipe gulp.dest "#{base_dir}/app/"
+  .pipe gulp.dest "./_attachments/app/"
 
 gulp.task 'css', ->
   css = [
@@ -27,12 +25,12 @@ gulp.task 'css', ->
     "galaxytab.css"
     "pivot.css"
   ]
-  css = ("#{base_dir}/css/#{file}" for file in css)
+  css = ("./_attachments/css/#{file}" for file in css)
 
   gulp.src css
     .pipe cssmin()
     .pipe concat "style.min.css"
-    .pipe gulp.dest "#{base_dir}/css/"
+    .pipe gulp.dest "./_attachments/css/"
 
 gulp.task 'libs', ->
   libs = [
@@ -71,12 +69,12 @@ gulp.task 'libs', ->
     "typeahead.min.js"
   ]
 
-  libs = ("#{base_dir}/js-libraries/#{file}" for file in libs)
+  libs = ("./_attachments/js-libraries/#{file}" for file in libs)
 
   gulp.src libs
-    .pipe uglify()
+#    .pipe uglify()
     .pipe concat "libs.min.js"
-    .pipe gulp.dest "#{base_dir}/js/"
+    .pipe gulp.dest "./_attachments/js/"
 
 gulp.task 'app', ->
   app = [
@@ -109,13 +107,13 @@ gulp.task 'app', ->
     "app.js"
   ]
 
-  app = ("#{base_dir}/#{file}" for file in app)
+  app = ("./_attachments/#{file}" for file in app)
     
   gulp.src app
 #  .pipe debug()
   .pipe uglify()
   .pipe concat "app.min.js"
-  .pipe gulp.dest "#{base_dir}/js/"
+  .pipe gulp.dest "./_attachments/js/"
 
 gulp.task 'default', [
   'coffee'
@@ -124,6 +122,6 @@ gulp.task 'default', [
   'app'
 ]
 
-#gulp.watch "#{base_dir}/*.html", ['app']
-#gulp.watch ["#{base_dir}/app/**/*.coffee","#{base_dir}/app/*.coffee"], ['coffee','app']
+#gulp.watch "./_attachments/*.html", ['app']
+#gulp.watch ["./_attachments/app/**/*.coffee","./_attachments/app/*.coffee"], ['coffee','app']
 
