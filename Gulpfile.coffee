@@ -6,15 +6,19 @@ cssmin = require 'gulp-cssmin'
 shell = require 'gulp-shell'
 gutil = require 'gulp-util'
 debug = require 'gulp-debug'
+sourcemaps = require 'gulp-sourcemaps'
+watch = require 'gulp-watch'
+livereload = require 'gulp-livereload'
 
-gulp.task 'coffee', ->
-  gulp.src ["./_attachments/app/**/*.coffee","./_attachments/app/*.coffee"]
-  .pipe coffee
-    bare: true
-  .pipe gulp.dest "./_attachments/app/"
+# CONFIGURATION #
 
-gulp.task 'css', ->
-  css = [
+js_library_file = "libs.min.js"
+compiled_js_directory = "./_attachments/js/"
+app_file = "app.min.js"
+css_file = "style.min.css"
+css_file_dir = "./_attachments/css/"
+
+css_files = ("./_attachments/css/#{file}" for file in [
     "jquery.mobile-1.1.0.min.css"
     "jquery.mobile.datebox.min.css"
     "jquery.tagit.css"
@@ -24,16 +28,9 @@ gulp.task 'css', ->
     "designview.css"
     "galaxytab.css"
     "pivot.css"
-  ]
-  css = ("./_attachments/css/#{file}" for file in css)
+])
 
-  gulp.src css
-    .pipe cssmin()
-    .pipe concat "style.min.css"
-    .pipe gulp.dest "./_attachments/css/"
-
-gulp.task 'libs', ->
-  libs = [
+js_library_files = ("./_attachments/js-libraries/#{file}" for file in [
     "d3.v3.min.js"
     "jquery-2.1.0.min.js"
     "jquery-migrate-1.2.1.min.js"
@@ -67,61 +64,100 @@ gulp.task 'libs', ->
     "sha1.js"
     "coffee-script.js"
     "typeahead.min.js"
-  ]
+])
 
-  libs = ("./_attachments/js-libraries/#{file}" for file in libs)
 
-  gulp.src libs
-#    .pipe uglify()
-    .pipe concat "libs.min.js"
-    .pipe gulp.dest "./_attachments/js/"
+app_files = ("./_attachments/app/#{file}" for file in [
+    "config.coffee"
+    "models/User.coffee"
+    "models/Config.coffee"
+    "models/Question.coffee"
+    "models/QuestionCollection.coffee"
+    "models/Result.coffee"
+    "models/ResultCollection.coffee"
+    "models/Sync.coffee"
+    "models/LocalConfig.coffee"
+    "models/Message.coffee"
+    "models/MessageCollection.coffee"
+    "models/Help.coffee"
+    "views/LoginView.coffee"
+    "views/DesignView.coffee"
+    "views/QuestionView.coffee"
+    "views/MenuView.coffee"
+    "views/ResultsView.coffee"
+    "views/ResultSummaryEditorView.coffee"
+    "views/SyncView.coffee"
+    "views/ManageView.coffee"
+    "views/LocalConfigView.coffee"
+    "views/ReportView.coffee"
+    "views/CaseView.coffee"
+    "views/UsersView.coffee"
+    "views/MessagingView.coffee"
+    "views/HelpView.coffee"
+    "app.coffee"
+])
 
-gulp.task 'app', ->
-  app = [
-    "config.js"
-    "models/User.js"
-    "models/Config.js"
-    "models/Question.js"
-    "models/QuestionCollection.js"
-    "models/Result.js"
-    "models/ResultCollection.js"
-    "models/Sync.js"
-    "models/LocalConfig.js"
-    "models/Message.js"
-    "models/MessageCollection.js"
-    "models/Help.js"
-    "views/LoginView.js"
-    "views/DesignView.js"
-    "views/QuestionView.js"
-    "views/MenuView.js"
-    "views/ResultsView.js"
-    "views/ResultSummaryEditorView.js"
-    "views/SyncView.js"
-    "views/ManageView.js"
-    "views/LocalConfigView.js"
-    "views/ReportView.js"
-    "views/CaseView.js"
-    "views/UsersView.js"
-    "views/MessagingView.js"
-    "views/HelpView.js"
-    "app.js"
-  ]
+compile_and_concat = () ->
+  gutil.log "Combining javascript libraries into #{js_library_file}"
+  gulp.src js_library_files
+    .pipe sourcemaps.init()
+    .pipe concat js_library_file
+    .pipe sourcemaps.write()
+    .pipe gulp.dest compiled_js_directory
 
-  app = ("./_attachments/#{file}" for file in app)
-    
-  gulp.src app
-#  .pipe debug()
-  .pipe uglify()
-  .pipe concat "app.min.js"
-  .pipe gulp.dest "./_attachments/js/"
+  gutil.log "Compiling coffeescript and combining into #{app_file}"
+  gulp.src app_files
+    .pipe sourcemaps.init()
+    .pipe coffee
+      bare: true
+    .on 'error', gutil.log
+    .pipe concat app_file
+    .pipe sourcemaps.write()
+    .pipe gulp.dest compiled_js_directory
 
-gulp.task 'default', [
-  'coffee'
-  'libs'
-  'css'
-  'app'
-]
+  gutil.log "Combining css into #{css_file}"
+  gulp.src css_files
+    .pipe concat css_file
+    .pipe gulp.dest css_file_dir
 
-#gulp.watch "./_attachments/*.html", ['app']
-#gulp.watch ["./_attachments/app/**/*.coffee","./_attachments/app/*.coffee"], ['coffee','app']
+couchapp_push = (destination = "default") ->
+  gutil.log "Pushing to couchdb"
+  shell.task "couchapp push #{destination}"
+  
+minify = () ->
+  for file in [js_library_file, app_file]
+    gutil.log "uglifying: #{file}"
+    gulp.src "#{compiled_js_directory}#{file}"
+      .pipe uglify()
+      .pipe concat file
+      .pipe gulp.dest compiled_js_directory
 
+  # Note that cssmin doesn't reduce file size much
+  gutil.log "cssmin'ing #{css_file_dir}#{css_file}"
+  gulp.src "#{css_file_dir}#{css_file}"
+    .pipe cssmin()
+    .pipe concat css_file
+    .pipe gulp.dest css_file_dir
+
+develop = () ->
+  compile_and_concat()
+  couchapp_push()
+  livereload.reload()
+
+gulp.task 'minify', ->
+  compile_and_concat()
+  minify()
+
+gulp.task 'deploy', ->
+  compile_and_concat()
+  minify()
+  couchapp_push("cloud")
+
+gulp.task 'develop', ->
+  livereload.listen
+    start: true
+  gulp.watch app_files.concat(js_library_files).concat(css_files), develop
+
+gulp.task 'default', ->
+  compile_and_concat()
+  minify()
