@@ -122,8 +122,8 @@ compile_and_concat = () ->
 
 couchapp_push = (destination = "default") ->
   gutil.log "Pushing to couchdb"
-  shell.task "couchapp push #{destination}"
-  
+  gulp.src("").pipe shell(["couchapp push #{destination}"])
+
 minify = () ->
   for file in [js_library_file, app_file]
     gutil.log "uglifying: #{file}"
@@ -154,6 +154,8 @@ gulp.task 'deploy', ->
   couchapp_push("cloud")
 
 gulp.task 'develop', ->
+  compile_and_concat()
+  couchapp_push()
   livereload.listen
     start: true
   gulp.watch app_files.concat(js_library_files).concat(css_files), develop
