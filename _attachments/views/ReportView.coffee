@@ -30,7 +30,7 @@ class ReportView extends Backbone.View
     @startDate = options.startDate || moment(new Date).subtract('days',14).format("YYYY-MM-DD")
     @endDate = options.endDate || moment(new Date).format("YYYY-MM-DD")
     @question = unescape(options.question)
-    @aggregateBy = options.aggregateBy || "District"
+    @aggregateBy = options.aggregateBy 
 
     @$el.html "
       <style>
@@ -91,24 +91,6 @@ class ReportView extends Backbone.View
         $('div[data-role=fieldcontain]').fieldcontain()
         $('select').selectmenu()
         $('input[type=date]').datebox {mode: "calbox"}
-
-
-  hierarchyOptions: (locationType, location) ->
-    if locationType is "region"
-      return _.keys WardHierarchy.hierarchy
-    _.chain(WardHierarchy.hierarchy)
-      .map (value,key) ->
-        if locationType is "district" and location is key
-          return _.keys value
-        _.map value, (value,key) ->
-          if locationType is "constituan" and location is key
-            return _.keys value
-          _.map value, (value,key) ->
-            if locationType is "shehia" and location is key
-              return value
-      .flatten()
-      .compact()
-      .value()
 
   mostSpecificLocationSelected: ->
     mostSpecificLocationType = "region"

@@ -130,23 +130,6 @@ class Router extends Backbone.Router
           _.each $('table tr'), (row, index) ->
             $(row).addClass("odd") if index%2 is 1
 
-  alerts: ->
-    @userLoggedIn
-      success: ->
-        if Coconut.config.local.mode is "mobile"
-          $("#content").html "Alerts not available in mobile mode."
-        else
-          $("#content").html "
-            <h1>Alerts</h1>
-            <ul>
-              <li>
-                <b>Localised Epidemic</b>: More than 10 cases per square kilometer in KATI district near BAMBI shehia (map <a href='#reports/location'>Map</a>). Recommend active case detection in shehia.
-              </li>
-              <li>
-                <b>Abnormal Data Detected</b>: Only 1 case reported in MAGHARIBI district for June 2012. Expected amount: 25. Recommend checking that malaria test kits are available at all health facilities in MAGHARIBI.
-              </li>
-            </ul>
-          "
 
   reports: (options) ->
     @userLoggedIn
@@ -332,10 +315,6 @@ class Router extends Backbone.Router
       success: ->
         $("#footer-menu").html "
           <center>
-          <span style='font-size:75%;display:inline-block'>
-            <span id='district'></span><br/>
-            <span id='user'></span>
-          </span>
           <a href='#login'>Login</a>
           <a href='#logout'>Logout</a>
           <a id='reports' href='#reports'>Reports</a>
@@ -359,7 +338,8 @@ class Router extends Backbone.Router
 
 
         Backbone.history.start()
-      error: ->
+      error: (error) ->
+        console.error error
         Coconut.localConfigView ?= new LocalConfigView()
         Coconut.localConfigView.render()
 

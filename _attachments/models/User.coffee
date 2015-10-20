@@ -8,12 +8,11 @@ class User extends Backbone.Model
     @get("password") is password
 
   isAdmin: ->
-    @username() is "admin"
+    _(@get("roles")).contains "admin"
 
   login: ->
     $.cookie('current_user', @username())
     $("#user").html @username()
-    $('#district').html @get "district"
     $("a[href=#logout]").show()
     $("a[href=#login]").hide()
     if @isAdmin() then $("#manage-button").show() else $("#manage-button").hide()
@@ -40,7 +39,6 @@ User.isAuthenticated = (options) ->
 User.logout = ->
   $.cookie('current_user',"")
   $("#user").html ""
-  $('#district').html ""
   $("a[href=#logout]").hide()
   $("a[href=#login]").show()
   User.currentUser = null

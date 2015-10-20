@@ -47,7 +47,7 @@ class MessagingView extends Backbone.View
     $("#to").html @phoneNumbers.join(", ")
   
   render: =>
-    fields =  "_id,district,name,comments".split(",")
+    fields =  "_id,data,name,comments".split(",")
     messageFields =  "date,to,text".split(",")
     @$el.html "
       <h2>Send Message</h2>
@@ -96,9 +96,7 @@ class MessagingView extends Backbone.View
     @userCollection.fetch
       success: =>
         $("table.recipients").before "<input id='check-all' type='checkbox'></input>Select All"
-        @userCollection.sortBy (user) ->
-          user.get "district"
-        .forEach (user) ->
+        @userCollection.forEach (user) ->
           return unless user.get("_id").match(/\d\d\d/)
           $(".recipients tbody").append "
             <tr>

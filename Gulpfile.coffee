@@ -67,7 +67,7 @@ js_library_files = ("./_attachments/js-libraries/#{file}" for file in [
 ])
 
 
-app_files = ("./_attachments/app/#{file}" for file in [
+app_files = ("./_attachments/#{file}" for file in [
     "config.coffee"
     "models/User.coffee"
     "models/Config.coffee"
@@ -100,6 +100,7 @@ app_files = ("./_attachments/app/#{file}" for file in [
 compile_and_concat = () ->
   gutil.log "Combining javascript libraries into #{js_library_file}"
   gulp.src js_library_files
+    .pipe debug({title: "Adding library"})
     .pipe sourcemaps.init()
     .pipe concat js_library_file
     .pipe sourcemaps.write()
@@ -107,6 +108,7 @@ compile_and_concat = () ->
 
   gutil.log "Compiling coffeescript and combining into #{app_file}"
   gulp.src app_files
+    .pipe debug({title: "Compiling coffeescript"})
     .pipe sourcemaps.init()
     .pipe coffee
       bare: true

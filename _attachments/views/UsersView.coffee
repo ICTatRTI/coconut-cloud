@@ -1,6 +1,7 @@
 class UsersView extends Backbone.View
 
   initialize: ->
+    console.error "FFOOOO"
     @userCollection = new UserCollection()
 
   el: '#content'
@@ -38,7 +39,7 @@ class UsersView extends Backbone.View
     return false
   
   render: =>
-    fields =  "_id,password,district,name,comments".split(",")
+    fields =  "_id,password,data,name,comments".split(",")
     @$el.html "
       <h2>Create/edit users</h2>
       <h3>Use phone number for username to enable SMS messages</h3>
